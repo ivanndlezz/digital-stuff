@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Stuff - Media Gallery</title>
+  <meta name="description" content="Galería de recursos y medios digitales publicados en GitHub Pages.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #0b0f19;
+      --card-bg: #151c2e;
+      --text-color: #f3f4f6;
+      --text-muted: #9ca3af;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --success: #10b981;
+      --border: rgba(255, 255, 255, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    header {
+      max-width: 1200px;
+      margin: 0 auto 3rem auto;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #a5b4fc, #6366f1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .tab-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-color);
+      padding: 0.6rem 1.2rem;
+      border-radius: 9999px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active, .tab-btn:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .media-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .media-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .preview-container {
+      height: 200px;
+      background: #0f1423;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+
+    .preview-container img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      transition: transform 0.3s ease;
+    }
+
+    .media-card:hover .preview-container img {
+      transform: scale(1.05);
+    }
+
+    .card-body {
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex-grow: 1;
+    }
+
+    .media-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      word-break: break-all;
+    }
+
+    .media-meta {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .copy-btn {
+      margin-top: auto;
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      color: #a5b4fc;
+      padding: 0.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .copy-btn:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--success);
+      color: white;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      opacity: 0;
+      transform: translateY(100%);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 1000;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Digital Stuff Media Hub</h1>
+    <p>Explora y copia las URLs directas de tus recursos multimedia</p>
+  </header>
+
+  <main class="container">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="filterMedia('all')">Todos</button>
+      <button class="tab-btn" onclick="filterMedia('webp')">WebP</button>
+      <button class="tab-btn" onclick="filterMedia('jpg')">JPG</button>
+      <button class="tab-btn" onclick="filterMedia('avif')">AVIF</button>
+      <button class="tab-btn" onclick="filterMedia('icons')">Iconos</button>
+    </div>
+
+    <div class="gallery-grid" id="gallery">
+      <!-- Loveshack WEBP -->
+      <div class="media-card" data-type="webp">
+        <div class="preview-container">
+          <img src="loveshack/pics/general/webp/loveshack-interior-main-area.webp" alt="loveshack-interior-main-area">
+        </div>
+        <div class="card-body">
+          <div class="media-title">loveshack-interior-main-area.webp</div>
+          <div class="media-meta"><span>WebP</span><span>Loveshack</span></div>
+          <button class="copy-btn" onclick="copyLink('loveshack/pics/general/webp/loveshack-interior-main-area.webp')">Copiar Ruta Relativa</button>
+        </div>
+      </div>
+
+      <div class="media-card" data-type="webp">
+        <div class="preview-container">
+          <img src="loveshack/pics/general/webp/loveshack-lateral.webp" alt="loveshack-lateral">
+        </div>
+        <div class="card-body">
+          <div class="media-title">loveshack-lateral.webp</div>
+          <div class="media-meta"><span>WebP</span><span>Loveshack</span></div>
+          <button class="copy-btn" onclick="copyLink('loveshack/pics/general/webp/loveshack-lateral.webp')">Copiar Ruta Relativa</button>
+        </div>
+      </div>
+
+      <div class="media-card" data-type="webp">
+        <div class="preview-container">
+          <img src="loveshack/pics/general/webp/loveshack-frontal.webp" alt="loveshack-frontal">
+        </div>
+        <div class="card-body">
+          <div class="media-title">loveshack-frontal.webp</div>
+          <div class="media-meta"><span>WebP</span><span>Loveshack</span></div>
+          <button class="copy-btn" onclick="copyLink('loveshack/pics/general/webp/loveshack-frontal.webp')">Copiar Ruta Relativa</button>
+        </div>
+      </div>
+
+      <!-- Loveshack JPG -->
+      <div class="media-card" data-type="jpg">
+        <div class="preview-container">
+          <img src="loveshack/pics/general/jpg/loveshack-sun-mat-opt.jpg" alt="loveshack-sun-mat-opt">
+        </div>
+        <div class="card-body">
+          <div class="media-title">loveshack-sun-mat-opt.jpg</div>
+          <div class="media-meta"><span>JPG</span><span>Loveshack</span></div>
+          <button class="copy-btn" onclick="copyLink('loveshack/pics/general/jpg/loveshack-sun-mat-opt.jpg')">Copiar Ruta Relativa</button>
+        </div>
+      </div>
+
+      <div class="media-card" data-type="jpg">
+        <div class="preview-container">
+          <img src="loveshack/pics/general/jpg/loveshack-toilet-1.JPG" alt="loveshack-toilet-1">
+        </div>
+        <div class="card-body">
+          <div class="media-title">loveshack-toilet-1.JPG</div>
+          <div class="media-meta"><span>JPG (Mayúsculas)</span><span>Loveshack</span></div>
+          <button class="copy-btn" onclick="copyLink('loveshack/pics/general/jpg/loveshack-toilet-1.JPG')">Copiar Ruta Relativa</button>
+        </div>
+      </div>
+
+      <!-- Loveshack AVIF -->
+      <div class="media-card" data-type="avif">
+        <div class="preview-container">
+          <img src="loveshack/pics/general/avif/loveshack-interior-main-area-2.avif" alt="loveshack-interior-main-area-2">
+        </div>
+        <div class="card-body">
+          <div class="media-title">loveshack-interior-main-area-2.avif</div>
+          <div class="media-meta"><span>AVIF</span><span>Loveshack</span></div>
+          <button class="copy-btn" onclick="copyLink('loveshack/pics/general/avif/loveshack-interior-main-area-2.avif')">Copiar Ruta Relativa</button>
+        </div>
+      </div>
+
+      <!-- Icons -->
+      <div class="media-card" data-type="icons">
+        <div class="preview-container">
+          <img src="icons/brands/drive/Google_Drive_icon_2026.webp" alt="Google Drive Icon">
+        </div>
+        <div class="card-body">
+          <div class="media-title">Google_Drive_icon_2026.webp</div>
+          <div class="media-meta"><span>WebP</span><span>Iconos</span></div>
+          <button class="copy-btn" onclick="copyLink('icons/brands/drive/Google_Drive_icon_2026.webp')">Copiar Ruta Relativa</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="toast" id="toast">¡Enlace copiado al portapapeles!</div>
+
+  <script>
+    function filterMedia(type) {
+      // Activar botón seleccionado
+      const buttons = document.querySelectorAll('.tab-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      // Filtrar elementos
+      const cards = document.querySelectorAll('.media-card');
+      cards.forEach(card => {
+        if (type === 'all' || card.getAttribute('data-type') === type) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    function copyLink(relativePath) {
+      const fullUrl = window.location.origin + window.location.pathname.replace('index.html', '') + relativePath;
+      navigator.clipboard.writeText(fullUrl).then(() => {
+        const toast = document.getElementById('toast');
+        toast.classList.add('show');
+        setTimeout(() => {
+          toast.classList.remove('show');
+        }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>
